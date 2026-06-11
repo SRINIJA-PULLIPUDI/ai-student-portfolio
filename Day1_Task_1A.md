@@ -1,6 +1,7 @@
 # Lab 1A — AI Playground: 4-Tool Comparison Matrix
-**Student:** _(Your Name / Roll No.)_
-**Date:** June 2026
+**Student:** SRINIJA PULLIPUDI
+**Roll No:** 23MH1A05O3
+**Date:** 09-06-2026
 **Tasks attempted:** 3 (Summarise · Code · Reason)
 
 > **Note:** The examples used here are **different from the trainer's lab kit** — fresh inputs were chosen to independently verify tool behaviour.
