@@ -1,0 +1,177 @@
+{
+  "name": "Daily Placement News Diges",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7eae687c-ddab-45c5-89f8-33650cc9101a",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://news.ycombinator.com/rss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "ed2aa113-828a-4ff5-8d27-a0a5054cc0e9",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.1-8b-instant\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"={{ 'Summarise these RSS items into 5 bullets for a placement coach. Each bullet under 20 words. Highlight hiring, layoffs, or tech demand changes.\\\\n\\\\n' + $('RSS Read').all().map(i => '- ' + i.json.title + ': ' + (i.json.contentSnippet || i.json.content || '')).join('\\\\n') }}\"\n    }\n  ],\n  \"max_tokens\": 500,\n  \"temperature\": 0.5\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        832,
+        0
+      ],
+      "id": "eba43e0a-c155-427d-a7fa-2bde514d6a59",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "4lexHQeiJtZ69U7X",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "srilupullipudi@gmail.com",
+        "subject": "=Placement News Digest — {{$now.format(\"dd MMM yyyy\")}}",
+        "emailType": "text",
+        "message": "=Good morning. Today's placement news digest:\n\n{{ $json[\"choices\"][0][\"message\"][\"content\"] }}\n\nSent automatically by n8n at 7:00 AM IST.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "6a4d5f90-1dc4-40a5-a77a-a42d3e24b654",
+      "name": "Send a message",
+      "webhookId": "27836f54-1468-4609-9345-032593bf2cde",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NNTbewKSRaAs5a87",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "de5cb2bc-b1bb-45cd-8fe9-1cf5dae06ae8",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "adfbd2cc-3c9f-4a32-960c-3e39dba71e43",
+      "name": "Schedule Trigger",
+      "executeOnce": false
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        []
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "25566768-2f70-42d5-a99a-6387dc0a1e6f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "724c4c40b098e5ea812875693613aab98d8b5f0127c1e88a47e90c15243e448c"
+  },
+  "nodeGroups": [],
+  "id": "rZCnCJAj6owNysuq",
+  "tags": []
+}
